@@ -1,0 +1,19 @@
+{
+  "name": "simple-shop-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:MeninoNias/simple-shop-api.git",
+  "author": "Ananias Raphael <ananias.nobrega@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "eslint": "^9.8.0"
+  }
+}
