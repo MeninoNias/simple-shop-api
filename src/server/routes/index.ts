@@ -1,17 +1,8 @@
 import { Router } from 'express';
-import { StatusCodes } from 'http-status-codes'
+import userRoutes from './userRoutes';
 
 const router = Router();
 
-router.get('/', (req, res) => {
-    return res.send('fala tu');
-})
-
-router.post('/teste', (req, res) => {
-    console.log(req);
-
-    return res.status(StatusCodes.OK)
-
-})
+router.use('/user', userRoutes);
 
 export { router };

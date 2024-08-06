@@ -18,7 +18,8 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "http-status-codes": "^2.3.0",
-    "simple-shop-api": "file:"
+    "simple-shop-api": "file:",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
