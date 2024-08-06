@@ -6,23 +6,25 @@
   "author": "Ananias Raphael <ananias.nobrega@gmail.com>",
   "license": "MIT",
   "private": false,
+  "type": "module",
   "scripts": {
-    "start": "node index.js",
+    "start": "ts-node-dev ./src/index.ts",
     "dev": "nodemon index.js",
-    "lint": "eslint 'src/**/*.{js,ts}'"
+    "lint": "eslint src/**/*.{js,ts,tsx}"
   },
   "dependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^22.1.0",
     "express": "^4.19.2",
-    "simple-shop-api": "file:",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "simple-shop-api": "file:"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
     "eslint": "9.x",
     "globals": "^15.9.0",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.4",
     "typescript-eslint": "^8.0.0"
   }
 }
