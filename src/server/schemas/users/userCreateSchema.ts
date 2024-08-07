@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { InferType } from 'yup';
 
-export const userSchema = yup.object().shape({
+export const userCreateSchema = yup.object().shape({
     name: yup.string().required('Name is required'),
     email: yup
         .string()
@@ -13,4 +13,4 @@ export const userSchema = yup.object().shape({
         .required('Password is required'),
 });
 
-export type UserSchema = InferType<typeof userSchema>;
+export type UserCreateSchema = InferType<typeof userCreateSchema>;

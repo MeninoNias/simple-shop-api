@@ -6,16 +6,22 @@ import { StatusCodes } from "http-status-codes";
 import { validation } from '../../shared/middleware/Validation';
 
 import { userService } from "../../service/userService";
-import { UserSchema, userSchema } from "../../schemas/users/userSchema";
+import { UserCreateSchema, userCreateSchema } from "../../schemas/users/userCreateSchema";
+import { userLoginSchema, UserLoginSchema } from "../../schemas/users/userLoginSchema";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { handlePrismaError } from "../../shared/exception/PrismaParseError";
+import { PasswordCrypto } from "../../shared/services";
 
 
 export const createUserValidation = validation((getSchema) => ({
-    body: getSchema<UserSchema>(userSchema),
+    body: getSchema<UserCreateSchema>(userCreateSchema),
 }));
 
-export const createUser = async (request: Request<{}, {}, UserSchema>, response: Response, next: NextFunction) => {
+export const loginUserValidation = validation((getSchema) => ({
+    body: getSchema<UserLoginSchema>(userLoginSchema),
+}));
+
+export const createUser = async (request: Request<{}, {}, UserCreateSchema>, response: Response, next: NextFunction) => {
     try {
         const data = request.body
         const newUser = await userService.createUser(data);
@@ -45,3 +51,29 @@ export const getAllUsers = async (request: Request, response: Response) => {
         }
     }
 };
+
+export const loginUser = async (request: Request<{}, {}, UserLoginSchema>, response: Response) => {
+    try {
+        const { email, password } = request.body
+
+        const result = await userService.getUserByEmail(email)
+        if (!result) {
+            return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Email ou senha são invalidos.' });
+        }
+
+        const passwordMatch = await PasswordCrypto.verifyPassword(password, result.password)
+
+        if (!passwordMatch) {
+            return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Email ou senha são invalidos.' });
+        }
+
+        console.log(result);
+        return response.status(StatusCodes.ACCEPTED).json({ "token": 'AKJDLKSJADKLAJSDKLJASKLDJSAKLD' })
+    } catch (error) {
+        if (error instanceof Error) {
+            return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Email ou senha são invalidos.' });
+        } else {
+            return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+        }
+    }
+}
