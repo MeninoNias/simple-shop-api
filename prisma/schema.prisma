@@ -14,12 +14,13 @@ datasource db {
 }
 
 model User {
-    id        Int      @id @default(autoincrement())
-    name      String
-    email     String   @unique
-    password  String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id           Int      @id @default(autoincrement())
+    name         String
+    email        String   @unique
+    emailConfirm Boolean  @default(false)
+    password     String
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
 
     cliente Cliente?
 
@@ -66,7 +67,7 @@ model Produto {
 model Pedido {
     id         Int          @id @default(autoincrement())
     clienteId  Int
-    status     PedidoStatus
+    status     PedidoStatus @default(EM_PREPARACAO)
     dataPedido DateTime     @default(now())
     total      Decimal
 
