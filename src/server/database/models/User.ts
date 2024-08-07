@@ -5,7 +5,7 @@ export interface IUser {
     id: number;
     name: string;
     email: string;
-    emailConfirm: boolean;
+    emailConfirm?: boolean;
     password: string;
     createdAt: Date;
     updatedAt: Date;
