@@ -1,3 +1,4 @@
+import { Role } from "@prisma/client";
 import { ICliente as Cliente } from "./Cliente";
 
 export interface IUser {
@@ -12,7 +13,7 @@ export interface IUser {
     type: Role;
 }
 
-export enum Role {
-    CLIENT = 'CLIENT',
-    ADMIN = 'ADMIN',
-}
+// export enum Role {
+//     CLIENT = 'CLIENT',
+//     ADMIN = 'ADMIN',
+// }
