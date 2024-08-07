@@ -10,7 +10,7 @@ import { UserCreateSchema, userCreateSchema } from "../../schemas/users/userCrea
 import { userLoginSchema, UserLoginSchema } from "../../schemas/users/userLoginSchema";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { handlePrismaError } from "../../shared/exception/PrismaParseError";
-import { PasswordCrypto } from "../../shared/services";
+import { JWTService, PasswordCrypto } from "../../shared/services";
 
 
 export const createUserValidation = validation((getSchema) => ({
@@ -66,9 +66,16 @@ export const loginUser = async (request: Request<{}, {}, UserLoginSchema>, respo
         if (!passwordMatch) {
             return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Email ou senha são invalidos.' });
         }
+        else {
+            const accessToken = JWTService.sign({ uid: result.id });
 
-        console.log(result);
-        return response.status(StatusCodes.ACCEPTED).json({ "token": 'AKJDLKSJADKLAJSDKLJASKLDJSAKLD' })
+            if (accessToken === 'JWT_SECRET_NOT_FOUND') {
+                return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+            }
+            else {
+                return response.status(StatusCodes.ACCEPTED).json({ accessToken })
+            }
+        }
     } catch (error) {
         if (error instanceof Error) {
             return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Email ou senha são invalidos.' });
