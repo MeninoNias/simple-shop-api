@@ -5,13 +5,21 @@ import { Role } from '@prisma/client';
 import { PasswordCrypto } from '../shared/services';
 
 export const userService = {
-    createUser: async (data: UserCreateSchema): Promise<User> => {
+    createUser: async (data: UserCreateSchema): Promise<Omit<User, 'password'>> => {
         const hashedPassword = await PasswordCrypto.hashPassword(data.password);
         const user = await prisma.user.create({
             data: {
                 ...data,
                 password: hashedPassword,
                 type: Role.ADMIN,
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                createdAt: true,
+                updatedAt: true,
+                type: true
             }
         });
         return user;
@@ -32,17 +40,9 @@ export const userService = {
         return user;
     },
 
-    getUserByEmail: async (email: string): Promise<Omit<User, 'password'> | null> => {
+    getUserByEmail: async (email: string): Promise<User | null> => {
         const user = await prisma.user.findUnique({
             where: { email: email },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                createdAt: true,
-                updatedAt: true,
-                type: true
-            }
         });
         return user;
     },
