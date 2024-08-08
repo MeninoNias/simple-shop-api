@@ -11,7 +11,7 @@ import { userLoginSchema, UserLoginSchema } from "../../schemas/users/userLoginS
 import { ParamPropsShema, paramPropsShema } from "../../schemas/utils/ParamPropsShema";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { handlePrismaError } from "../../shared/exception/PrismaParseError";
-import { JWTService, PasswordCrypto } from "../../shared/services";
+import { JWTService, PasswordCrypto, sendMailUserConfirm } from "../../shared/services";
 
 interface IParamProps {
     id?: number;
@@ -33,10 +33,15 @@ export const findByIdValidation = validation(get => ({
     params: get<ParamPropsShema>(paramPropsShema),
 }));
 
+export const updateValidation = validation(get => ({
+    params: get<ParamPropsShema>(paramPropsShema),
+}));
+
 export const createUser = async (request: Request<{}, {}, UserCreateSchema>, response: Response, next: NextFunction) => {
     try {
         const data = request.body
         const newUser = await userService.createUser(data);
+        sendMailUserConfirm(newUser);
         return response.status(StatusCodes.CREATED).json(newUser);
 
     } catch (error) {
@@ -44,7 +49,8 @@ export const createUser = async (request: Request<{}, {}, UserCreateSchema>, res
             return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
         }
         if (error instanceof Error) {
-            return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+            console.log(error.message)
+            return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
         } else {
             return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
         }
@@ -125,6 +131,45 @@ export const getAllUsers = async (request: Request, response: Response) => {
         }
     }
 };
+
+
+export const confirmUser = async (request: Request<IParamProps>, response: Response) => {
+    try {
+        const { id } = request.params;
+
+        if (!id) {
+            return response.status(StatusCodes.BAD_REQUEST).json({
+                errors: {
+                    default: 'O parâmetro "id" precisa ser informado.'
+                }
+            });
+        }
+
+        const userUpdate = await userService.getUserById(id)
+
+        if (!userUpdate) {
+            return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
+        }
+
+        if (userUpdate.emailConfirm){
+            return response.status(StatusCodes.NOT_MODIFIED).json({ detail: 'User has already been confirmed' });
+        }
+
+        userUpdate.emailConfirm = true;
+        const result = await userService.updateUser(userUpdate);
+
+        return response.status(StatusCodes.OK).json({ detail: 'User confirmed successfully' });
+
+    } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+            return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
+        }
+        if (error instanceof Error) {
+            return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+        }
+
+    }
+}
 
 export const loginUser = async (request: Request<{}, {}, UserLoginSchema>, response: Response) => {
     try {

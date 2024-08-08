@@ -32,6 +32,7 @@ export const userService = {
                 id: true,
                 name: true,
                 email: true,
+                emailConfirm: true,
                 createdAt: true,
                 updatedAt: true,
                 type: true
@@ -53,12 +54,27 @@ export const userService = {
         });
         return deleteUser;
     },
+
+    updateUser: async (user: Omit<User, 'password'>): Promise<User | null> => {
+        const updateUser = await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                name: user.name,
+                email: user.email,
+                emailConfirm: user.emailConfirm,
+                type: user.type,
+            }
+        });
+        return updateUser;
+    },
+
     getAllUsers: async (): Promise<Omit<User, 'password'>[]> => {
         const users = await prisma.user.findMany({
             select: {
                 id: true,
                 name: true,
                 email: true,
+                emailConfirm: true,
                 createdAt: true,
                 updatedAt: true,
                 type: true
