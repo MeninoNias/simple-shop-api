@@ -1,4 +1,4 @@
-import { createUser, getAllUsers, createUserValidation, loginUserValidation, loginUser, deleteById, deleteByIdValidation, findById, findByIdValidation, confirmUser, updateValidation } from './UserController';
+import { createUser, getAllUsers, createUserValidation, loginUserValidation, loginUser, deleteById, deleteByIdValidation, findById, findByIdValidation, confirmUser, updateValidation, confirmValidation, updateUser } from './UserController';
 
 
 export const UserController = {
@@ -7,8 +7,10 @@ export const UserController = {
     loginUser,
     deleteById,
     findById,
+    updateUser,
     confirmUser,
     updateValidation,
+    confirmValidation,
     findByIdValidation,
     deleteByIdValidation,
     createUserValidation,

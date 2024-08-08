@@ -6,8 +6,14 @@ import { StatusCodes } from "http-status-codes";
 import { validation } from '../../shared/middleware/Validation';
 
 import { userService } from "../../service/userService";
-import { UserCreateSchema, userCreateSchema } from "../../schemas/users/userCreateSchema";
-import { userLoginSchema, UserLoginSchema } from "../../schemas/users/userLoginSchema";
+import {
+    UserCreateSchema,
+    userCreateSchema,
+    userLoginSchema,
+    UserLoginSchema,
+    userUpdateSchema,
+    UserUpdateSchema
+} from "../../schemas/users";
 import { ParamPropsShema, paramPropsShema } from "../../schemas/utils/ParamPropsShema";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { handlePrismaError } from "../../shared/exception/PrismaParseError";
@@ -33,7 +39,12 @@ export const findByIdValidation = validation(get => ({
     params: get<ParamPropsShema>(paramPropsShema),
 }));
 
+export const confirmValidation = validation(get => ({
+    params: get<ParamPropsShema>(paramPropsShema),
+}));
+
 export const updateValidation = validation(get => ({
+    body: get<UserUpdateSchema>(userUpdateSchema),
     params: get<ParamPropsShema>(paramPropsShema),
 }));
 
@@ -132,6 +143,33 @@ export const getAllUsers = async (request: Request, response: Response) => {
     }
 };
 
+export const updateUser = async (request: Request<IParamProps, {}, UserUpdateSchema>, response: Response, next: NextFunction) => {
+    try {
+        const { id } = request.params;
+
+        if (!id) {
+            return response.status(StatusCodes.BAD_REQUEST).json({
+                errors: {
+                    default: 'O parâmetro "id" precisa ser informado.'
+                }
+            });
+        }
+
+        const result = await userService.updateUser(id, request.body);
+
+        return response.status(StatusCodes.OK).json({ result });
+
+    } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+            return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
+        }
+        if (error instanceof Error) {
+            return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+        }
+
+    }
+}
+
 
 export const confirmUser = async (request: Request<IParamProps>, response: Response) => {
     try {
@@ -151,12 +189,12 @@ export const confirmUser = async (request: Request<IParamProps>, response: Respo
             return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
         }
 
-        if (userUpdate.emailConfirm){
+        if (userUpdate.emailConfirm) {
             return response.status(StatusCodes.NOT_MODIFIED).json({ detail: 'User has already been confirmed' });
         }
 
         userUpdate.emailConfirm = true;
-        const result = await userService.updateUser(userUpdate);
+        const result = await userService.updateUser(id, userUpdate);
 
         return response.status(StatusCodes.OK).json({ detail: 'User confirmed successfully' });
 

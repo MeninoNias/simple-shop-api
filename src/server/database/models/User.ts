@@ -1,5 +1,5 @@
-import { Role } from "@prisma/client";
-import { ICliente as Cliente } from "./Cliente";
+import { Cliente, Role } from "@prisma/client";
+// import { ICliente as Cliente } from "./Cliente";
 
 export interface IUser {
     id: number;

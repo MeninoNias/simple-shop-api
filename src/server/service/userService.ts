@@ -1,5 +1,5 @@
 import { IUser as User } from '../database/models/User';
-import { UserCreateSchema } from '../schemas/users/userCreateSchema';
+import { UserCreateSchema, UserUpdateSchema } from '../schemas/users';
 import prisma from '../database';
 import { Role } from '@prisma/client';
 import { PasswordCrypto } from '../shared/services';
@@ -55,14 +55,18 @@ export const userService = {
         return deleteUser;
     },
 
-    updateUser: async (user: Omit<User, 'password'>): Promise<User | null> => {
+    updateUser: async (id: number, user: UserUpdateSchema): Promise<Omit<User, 'password'> | null> => {
         const updateUser = await prisma.user.update({
-            where: { id: user.id },
-            data: {
-                name: user.name,
-                email: user.email,
-                emailConfirm: user.emailConfirm,
-                type: user.type,
+            where: { id: Number(id) },
+            data: user,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                emailConfirm: true,
+                createdAt: true,
+                updatedAt: true,
+                type: true
             }
         });
         return updateUser;
