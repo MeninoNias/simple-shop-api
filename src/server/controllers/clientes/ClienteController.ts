@@ -38,11 +38,36 @@ export const updateValidation = validation(get => ({
     params: get<ParamPropsShema>(paramPropsShema),
 }));
 
+export const getMeCliente = async (request: Request, response: Response) => {
+    try {
+        const user = request.user
+        if (!user){
+            return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Não autenticado.' });
+        }
+        
+        const Cliente = await clienteService.getClienteDetailByUser(user.id)
+
+        if (!Cliente) {
+            return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
+        }
+
+        return response.status(StatusCodes.OK).json(Cliente);
+    } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+            return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
+        }
+        if (error instanceof Error) {
+            return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+        }
+
+    }
+}
+
 export const createCliente = async (request: Request<{}, {}, ClienteCreateSchema>, response: Response, next: NextFunction) => {
     try {
         const data = request.body
         const newCliente = await clienteService.createCliente(data);
-        if (newCliente.user){
+        if (newCliente.user) {
             sendMailUserConfirm(newCliente.user);
         }
         return response.status(StatusCodes.CREATED).json(newCliente);

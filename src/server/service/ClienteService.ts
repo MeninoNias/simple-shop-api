@@ -3,7 +3,8 @@ import prisma from '../database';
 import { ICliente as Cliente } from '../database/models/Cliente';
 import { PasswordCrypto } from '../shared/services';
 import { Role } from '@prisma/client';
-import { IClienteDto } from 'server/database/dto/ClienteDto';
+import { IClienteDto } from '../database/dto/ClienteDto';
+import { IClienteDetailDto } from '../database/dto/ClienteDetail';
 
 export const clienteService = {
     createCliente: async (data: ClienteCreateSchema): Promise<IClienteDto> => {
@@ -49,6 +50,33 @@ export const clienteService = {
                 nomeCompleto: true,
                 contato: true,
                 endereco: true,
+                createdAt: true,
+                updatedAt: true,
+            }
+        });
+        return cliente;
+    },
+
+    getClienteDetailByUser: async (id: number): Promise<IClienteDetailDto | null> => {
+        const cliente = await prisma.cliente.findUnique({
+            where: {
+                userId: Number(id),
+                status: true
+            },
+            select: {
+                id: true,
+                nomeCompleto: true,
+                contato: true,
+                endereco: true,
+                status: true,
+                user: {
+                    select: {
+                        id: true,
+                        email: true,
+                        type: true,
+                    }
+                },
+                pedidos: true,
                 createdAt: true,
                 updatedAt: true,
             }

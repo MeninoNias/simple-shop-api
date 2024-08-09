@@ -1,6 +1,7 @@
 import { Decimal } from '@prisma/client/runtime/library';
 import { ICliente as Cliente } from './Cliente';
 import { ItemPedido } from './ItemPedido';
+import { PedidoStatus } from '@prisma/client';
 
 export interface IPedido {
     id: number;
@@ -8,13 +9,6 @@ export interface IPedido {
     status: PedidoStatus;
     dataPedido: Date;
     total: Decimal;
-    cliente: Cliente;
-    ItemPedido: ItemPedido[];
-}
-
-export enum PedidoStatus {
-    RECEBIDO = 'RECEBIDO',
-    EM_PREPARACAO = 'EM_PREPARACAO',
-    DESPACHADO = 'DESPACHADO',
-    ENTREGUE = 'ENTREGUE'
+    cliente?: Cliente;
+    ItemPedido?: ItemPedido[];
 }

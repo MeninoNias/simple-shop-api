@@ -4,6 +4,8 @@ import { ensureAuthenticated, adminAuthenticated } from '../shared/middleware';
 
 const router = Router();
 
+router.get('/me', [ensureAuthenticated], ClienteController.getMeCliente);
+
 router.get('/', [ensureAuthenticated, adminAuthenticated], ClienteController.getAllClientes);
 router.post('/', [ensureAuthenticated, adminAuthenticated], ClienteController.createValidation, ClienteController.createCliente);
 router.put('/:id', [ensureAuthenticated, adminAuthenticated], ClienteController.updateValidation, ClienteController.updateCliente);

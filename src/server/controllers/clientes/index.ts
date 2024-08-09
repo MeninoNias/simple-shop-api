@@ -1,4 +1,5 @@
 import {
+    getMeCliente,
     getAllClientes,
     createCliente,
     deleteById,
@@ -12,6 +13,7 @@ import {
 
 
 export const ClienteController = {
+    getMeCliente,
     getAllClientes,
     createCliente,
     deleteById,
