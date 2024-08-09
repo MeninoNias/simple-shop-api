@@ -1,7 +1,6 @@
 import nodemailer from 'nodemailer';
 import winston from 'winston';
 import dotenv from "dotenv";
-import { IUser } from 'server/database/models/User';
 dotenv.config();
 
 const logger = winston.createLogger({
@@ -56,7 +55,8 @@ const generateHTMLEmail = (title: string, message: string) => {
 
 }
 
-export const sendMailUserConfirm = async (user: Omit<IUser, "password">) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const sendMailUserConfirm = async (user: any) => {
     const title = 'CONFIRME SUA CONTA'
     const message = `Clice <a href="${process.env.APP_URL}/api/user/confirm/${user.id}">aqui</a> para confirmar sua conta`
     sendMail(user.email, title, generateHTMLEmail(title, message))

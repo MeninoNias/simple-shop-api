@@ -3,9 +3,10 @@ import prisma from '../database';
 import { ICliente as Cliente } from '../database/models/Cliente';
 import { PasswordCrypto } from '../shared/services';
 import { Role } from '@prisma/client';
+import { IClienteDto } from 'server/database/dto/ClienteDto';
 
 export const clienteService = {
-    createCliente: async (data: ClienteCreateSchema): Promise<Omit<Cliente, 'userId' | 'user'>> => {
+    createCliente: async (data: ClienteCreateSchema): Promise<IClienteDto> => {
         const hashedPassword = await PasswordCrypto.hashPassword(data.password);
 
         const newCliente = await prisma.cliente.create({

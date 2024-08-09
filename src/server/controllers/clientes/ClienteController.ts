@@ -15,6 +15,7 @@ import {
 import { ParamPropsShema, paramPropsShema } from "../../schemas/utils/ParamPropsShema";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { handlePrismaError } from "../../shared/exception/PrismaParseError";
+import { sendMailUserConfirm } from "../../shared/services";
 
 interface IParamProps {
     id?: number;
@@ -41,6 +42,9 @@ export const createCliente = async (request: Request<{}, {}, ClienteCreateSchema
     try {
         const data = request.body
         const newCliente = await clienteService.createCliente(data);
+        if (newCliente.user){
+            sendMailUserConfirm(newCliente.user);
+        }
         return response.status(StatusCodes.CREATED).json(newCliente);
 
     } catch (error) {

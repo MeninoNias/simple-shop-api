@@ -11,5 +11,5 @@ export interface ICliente {
     createdAt: Date;
     updatedAt: Date;
     pedidos?: Pedido[];
-    user: User;
+    user?: User;
 }
