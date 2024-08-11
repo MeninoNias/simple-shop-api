@@ -47,25 +47,23 @@ export const pedidoService = {
         return pedido;
     },
 
-    // getProdutoById: async (id: number): Promise<IProduto | null> => {
-    //     const cliente = await prisma.produto.findUnique({
-    //         where: {
-    //             id: Number(id),
-    //         },
-    //     });
-    //     return cliente;
-    // },
+    getPedidoById: async (id: number, clienteId: number): Promise<IPedido | null> => {
+        const pedido = await prisma.pedido.findUnique({
+            where: {
+                id: Number(id),
+                clienteId: clienteId
+            },
+        });
+        return pedido;
+    },
 
-    // deleteProdutoById: async (id: number): Promise<IProduto | null> => {
-    //     const deleteProduto = await prisma.$transaction(async (prisma) => {
-    //         const produto = await prisma.produto.delete({
-    //             where: { id: Number(id) },
-    //         });
+    deletePedidoById: async (id: number): Promise<IPedido | null> => {
+        const pedido = await prisma.pedido.delete({
+            where: { id: Number(id) },
+        });
 
-    //         return produto
-    //     })
-    //     return deleteProduto;
-    // },
+        return pedido
+    },
 
     // updateProduto: async (id: number, data: ProdutoUpdateSchema): Promise<IProduto | null> => {
     //     const updateProduto = await prisma.produto.update({

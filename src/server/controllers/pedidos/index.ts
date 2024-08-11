@@ -1,8 +1,8 @@
 import {
     getAllPedidos,
     createPedido,
-    // deleteById,
-    // findById,
+    deleteById,
+    findById,
     // updatePedido,
     createValidation,
     deleteByIdValidation,
@@ -14,8 +14,8 @@ import {
 export const PedidoController = {
     getAllPedidos,
     createPedido,
-    // deleteById,
-    // findById,
+    deleteById,
+    findById,
     // updatePedido,
     createValidation,
     deleteByIdValidation,

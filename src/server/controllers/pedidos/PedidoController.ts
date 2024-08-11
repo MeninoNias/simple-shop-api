@@ -59,67 +59,79 @@ export const createPedido = async (request: Request<{}, {}, PedidoCreateSchema>,
     }
 };
 
-// export const deleteById = async (request: Request<IParamProps>, response: Response) => {
-//     try {
-//         const { id } = request.params;
+export const deleteById = async (request: Request<IParamProps>, response: Response) => {
+    try {
+        const { id } = request.params;
+        const user = request.user
+        console.log('user', user)
+        if (!user || !user.cliente) {
+            return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Sem permissão.' });
+        }
 
-//         if (!id) {
-//             return response.status(StatusCodes.BAD_REQUEST).json({
-//                 errors: {
-//                     default: 'O parâmetro "id" precisa ser informado.'
-//                 }
-//             });
-//         }
+        if (!id) {
+            return response.status(StatusCodes.BAD_REQUEST).json({
+                errors: {
+                    default: 'O parâmetro "id" precisa ser informado.'
+                }
+            });
+        }
 
-//         const produtoDelete = await produtoService.getProdutoById(id)
+        const produtoDelete = await pedidoService.getPedidoById(id, user.cliente.id)
 
-//         if (!produtoDelete) {
-//             return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
-//         }
+        if (!produtoDelete) {
+            return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
+        }
 
-//         const result = await produtoService.deleteProdutoById(id);
+        const result = await pedidoService.deletePedidoById(id);
 
-//         return response.status(StatusCodes.OK).json({ detail: 'Produto deleted successfully' });
-//     } catch (error) {
-//         if (error instanceof PrismaClientKnownRequestError) {
-//             return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
-//         }
-//         if (error instanceof Error) {
-//             return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
-//         }
+        return response.status(StatusCodes.OK).json({ detail: 'Produto deleted successfully' });
+    } catch (error) {
+        console.log('error', error)
+        if (error instanceof PrismaClientKnownRequestError) {
+            return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
+        }
+        if (error instanceof Error) {
+            console.log('error', error.message)
+            console.log('error', error.stack)
+            return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+        }
 
-//     }
-// }
+    }
+}
 
-// export const findById = async (request: Request<IParamProps>, response: Response) => {
-//     try {
-//         const { id } = request.params;
+export const findById = async (request: Request<IParamProps>, response: Response) => {
+    try {
+        const { id } = request.params;
+        const user = request.user
+        if (!user || !user.cliente) {
+            return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Sem permissão.' });
+        }
 
-//         if (!id) {
-//             return response.status(StatusCodes.BAD_REQUEST).json({
-//                 errors: {
-//                     default: 'O parâmetro "id" precisa ser informado.'
-//                 }
-//             });
-//         }
+        if (!id) {
+            return response.status(StatusCodes.BAD_REQUEST).json({
+                errors: {
+                    default: 'O parâmetro "id" precisa ser informado.'
+                }
+            });
+        }
 
-//         const produto = await produtoService.getProdutoById(id)
+        const pedido = await pedidoService.getPedidoById(id, user.cliente.id)
 
-//         if (!produto) {
-//             return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
-//         }
+        if (!pedido) {
+            return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
+        }
 
-//         return response.status(StatusCodes.OK).json(produto);
-//     } catch (error) {
-//         if (error instanceof PrismaClientKnownRequestError) {
-//             return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
-//         }
-//         if (error instanceof Error) {
-//             return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
-//         }
+        return response.status(StatusCodes.OK).json(pedido);
+    } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+            return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
+        }
+        if (error instanceof Error) {
+            return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+        }
 
-//     }
-// }
+    }
+}
 
 export const getAllPedidos = async (request: Request, response: Response) => {
     try {
@@ -134,7 +146,7 @@ export const getAllPedidos = async (request: Request, response: Response) => {
     }
 };
 
-// export const updateProduto = async (request: Request<IParamProps, {}, ProdutoUpdateSchema>, response: Response, next: NextFunction) => {
+// export const updatePedido = async (request: Request<IParamProps, {}, ProdutoUpdateSchema>, response: Response, next: NextFunction) => {
 //     try {
 //         const { id } = request.params;
 
@@ -147,13 +159,13 @@ export const getAllPedidos = async (request: Request, response: Response) => {
 //         }
 
 
-//         const produto = await produtoService.getProdutoById(id)
+//         const produto = await pedidoService.getProdutoById(id)
 
 //         if (!produto) {
 //             return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
 //         }
 
-//         const result = await produtoService.updateProduto(id, request.body);
+//         const result = await pedidoService.updateProduto(id, request.body);
 
 //         return response.status(StatusCodes.OK).json({ result });
 
