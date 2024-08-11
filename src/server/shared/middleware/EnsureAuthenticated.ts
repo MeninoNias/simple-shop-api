@@ -33,7 +33,7 @@ export const ensureAuthenticated: RequestHandler = async (req: Request, res: Res
         });
     }
     const userId: number = Number(jwtData.uid.toString());
-    const user = await userService.getUserById(userId);
+    const user = await userService.getUserClienteById(userId);
     if (!user) {
         return res.status(StatusCodes.UNAUTHORIZED).json({
             errors: { default: 'Não autenticado' }
