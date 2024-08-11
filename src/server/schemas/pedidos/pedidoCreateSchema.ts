@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import { InferType } from 'yup';
-import { itemPedidoSchema } from './itemPedidoSchema ';
+import { itemPedidoSchema } from './itemPedidoSchema';
 
 
 export const pedidoCreateSchema = yup.object().shape({

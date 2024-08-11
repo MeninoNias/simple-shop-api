@@ -1,4 +1,4 @@
-import { PedidoCreateSchema } from '../schemas/pedidos';
+import { ItemPedidoSchema, PedidoCreateSchema } from '../schemas/pedidos';
 import prisma from '../database';
 import { IPedido } from 'server/database/models/Pedido';
 import { Decimal } from '@prisma/client/runtime/library';
@@ -46,6 +46,52 @@ export const pedidoService = {
         })
 
         return pedido;
+    },
+
+    createItemPedido: async (data: ItemPedidoSchema, pedido: IPedido): Promise<IPedido | Error> => {
+        const newPedido = await prisma.$transaction(async (prisma) => {
+            let pedidoItem = null
+            const produto = await prisma.produto.findUnique({ where: { id: Number(data.produtoId) } });
+            if (produto) {
+                const newItemPedido = await prisma.itemPedido.create({
+                    data: {
+                        pedidoId: Number(pedido.id),
+                        produtoId: data.produtoId,
+                        quantidade: data.quantidade,
+                        precoUnitario: produto.preco,
+                        subtotal: produto.preco.times(data.quantidade)
+                    },
+                    include: {
+                        pedido: {
+                            include: {
+                                ItemPedido: true
+                            }
+                        }
+                    }
+                });
+                console.log('newItemPedido', newItemPedido)
+            }
+            else {
+                throw Error('Produto não encontrado')
+            }
+            const itensPedidos = await prisma.itemPedido.aggregate({
+                where: { pedidoId: Number(pedido.id) },
+                _sum: { subtotal: true }
+            });
+            const total = new Decimal(itensPedidos._sum.subtotal || 0)
+            pedidoItem = await prisma.pedido.update({
+                where: { id: (pedido.id) },
+                data: {
+                    total: total
+                },
+                include: {
+                    ItemPedido: true
+                }
+            })
+            return pedidoItem;
+        })
+
+        return newPedido;
     },
 
     getPedidoById: async (id: number, clienteId: number): Promise<IPedido | null> => {

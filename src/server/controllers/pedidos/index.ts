@@ -4,10 +4,12 @@ import {
     deleteById,
     findById,
     // updatePedido,
+    createItemPedido,
     createValidation,
     deleteByIdValidation,
     findByIdValidation,
-    // updateValidation,
+    updateValidation,
+    patchValidation
 } from './PedidoController';
 
 
@@ -17,8 +19,10 @@ export const PedidoController = {
     deleteById,
     findById,
     // updatePedido,
+    createItemPedido,
     createValidation,
     deleteByIdValidation,
     findByIdValidation,
-    // updateValidation
+    updateValidation,
+    patchValidation
 };

@@ -9,6 +9,10 @@ import { pedidoService } from '../../service';
 import {
     pedidoCreateSchema,
     PedidoCreateSchema,
+    pedidoUpdateSchema,
+    PedidoUpdateSchema,
+    itemPedidoSchema,
+    ItemPedidoSchema
 } from "../../schemas/pedidos";
 import { ParamPropsShema, paramPropsShema } from "../../schemas/utils/ParamPropsShema";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
@@ -30,11 +34,15 @@ export const findByIdValidation = validation(get => ({
     params: get<ParamPropsShema>(paramPropsShema),
 }));
 
-// export const updateValidation = validation(get => ({
-//     body: get<ProdutoUpdateSchema>(produtoUpdateSchema),
-//     params: get<ParamPropsShema>(paramPropsShema),
-// }));
+export const updateValidation = validation(get => ({
+    body: get<PedidoUpdateSchema>(pedidoUpdateSchema),
+    params: get<ParamPropsShema>(paramPropsShema),
+}));
 
+export const patchValidation = validation(get => ({
+    body: get<ItemPedidoSchema>(itemPedidoSchema),
+    params: get<ParamPropsShema>(paramPropsShema),
+}))
 
 export const createPedido = async (request: Request<{}, {}, PedidoCreateSchema>, response: Response, next: NextFunction) => {
     try {
@@ -53,6 +61,45 @@ export const createPedido = async (request: Request<{}, {}, PedidoCreateSchema>,
         if (error instanceof Error) {
             console.log('error', error.message, error.stack)
             return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+        } else {
+            return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+        }
+    }
+};
+
+export const createItemPedido = async (request: Request<IParamProps, {}, ItemPedidoSchema>, response: Response, next: NextFunction) => {
+    try {
+        const data = request.body
+        const { id } = request.params;
+        const user = request.user
+
+        if (!user || !user.cliente) {
+            return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Não autenticado.' });
+        }
+
+        if (!id) {
+            return response.status(StatusCodes.BAD_REQUEST).json({
+                errors: {
+                    default: 'O parâmetro "id" precisa ser informado.'
+                }
+            });
+        }
+
+        const pedido = await pedidoService.getPedidoById(id, user.cliente.id);
+        if (!pedido){
+            return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
+        }
+
+        const newPedido = await pedidoService.createItemPedido(data, pedido);
+        return response.status(StatusCodes.CREATED).json(newPedido);
+
+    } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+            return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
+        }
+        if (error instanceof Error) {
+            console.log('error', error.message, error.stack)
+            return response.status(StatusCodes.BAD_REQUEST).json({ error: error.message });
         } else {
             return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
         }
