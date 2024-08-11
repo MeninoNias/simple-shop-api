@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id           Int      @id @default(autoincrement())
+    name         String
+    email        String   @unique
+    emailConfirm Boolean  @default(false)
+    password     String
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    cliente Cliente?
+
+    type Role @default(CLIENT)
+
+    @@map("users")
+}
+
+enum Role {
+    ADMIN
+    CLIENT
+}
+
+model Cliente {
+    id           Int      @id @default(autoincrement())
+    userId       Int      @unique
+    nomeCompleto String
+    contato      String
+    endereco     String
+    status       Boolean  @default(true)
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    pedidos Pedido[]
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("clientes")
+}
+
+model Produto {
+    id                  Int          @id @default(autoincrement())
+    nome                String
+    descricao           String
+    preco               Decimal
+    quantidadeEmEstoque Int
+    createdAt           DateTime     @default(now())
+    updatedAt           DateTime     @updatedAt
+    ItemPedido          ItemPedido[]
+
+    @@map("produtos")
+}
+
+model Pedido {
+    id         Int          @id @default(autoincrement())
+    clienteId  Int
+    status     PedidoStatus @default(EM_PREPARACAO)
+    dataPedido DateTime     @default(now())
+    total      Decimal
+
+    cliente    Cliente      @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+    ItemPedido ItemPedido[]
+}
+
+enum PedidoStatus {
+    RECEBIDO
+    EM_PREPARACAO
+    DESPACHADO
+    ENTREGUE
+}
+
+model ItemPedido {
+    id            Int     @id @default(autoincrement())
+    pedidoId      Int
+    produtoId     Int
+    quantidade    Int
+    precoUnitario Decimal
+    subtotal      Decimal
+
+    pedido  Pedido  @relation(fields: [pedidoId], references: [id])
+    produto Produto @relation(fields: [produtoId], references: [id])
+
+    @@map("item_pedidos")
+}
