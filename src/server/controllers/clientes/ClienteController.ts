@@ -13,6 +13,7 @@ import {
     clienteUpdateSchema
 } from "../../schemas/clientes";
 import { ParamPropsShema, paramPropsShema } from "../../schemas/utils/ParamPropsShema";
+import { searchPropsSchema, SearchPropsSchema } from "../../schemas/utils/SearchPropsSchema";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { handlePrismaError } from "../../shared/exception/PrismaParseError";
 import { sendMailUserConfirm } from "../../shared/services";
@@ -21,8 +22,16 @@ interface IParamProps {
     id?: number;
 }
 
+interface IQueryProps {
+    search?: string;
+  }
+
 export const createValidation = validation((getSchema) => ({
     body: getSchema<ClienteCreateSchema>(clienteCreateSchema),
+}));
+
+export const findAllValidation = validation((getSchema) => ({
+    query: getSchema<SearchPropsSchema>(searchPropsSchema),
 }));
 
 export const deleteByIdValidation = validation(get => ({
@@ -41,10 +50,10 @@ export const updateValidation = validation(get => ({
 export const getMeCliente = async (request: Request, response: Response) => {
     try {
         const user = request.user
-        if (!user){
+        if (!user) {
             return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Não autenticado.' });
         }
-        
+
         const Cliente = await clienteService.getClienteDetailByUser(user.id)
 
         if (!Cliente) {
@@ -147,10 +156,13 @@ export const findById = async (request: Request<IParamProps>, response: Response
     }
 }
 
-export const getAllClientes = async (request: Request, response: Response) => {
+export const getAllClientes = async (request: Request<{}, {}, {}, IQueryProps>, response: Response) => {
     try {
-        const Clientes = await clienteService.getAllClientes();
-        return response.status(StatusCodes.OK).json(Clientes);
+        const { search } = request.query || '';
+
+        const clientes = await clienteService.getAllClientes(search || '');
+
+        return response.status(StatusCodes.OK).json(clientes);
     } catch (error) {
         if (error instanceof Error) {
             return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });

@@ -130,8 +130,14 @@ export const clienteService = {
         return updateCliente;
     },
 
-    getAllClientes: async (): Promise<Omit<Cliente, 'userId' | 'user'>[]> => {
+    getAllClientes: async (search: string): Promise<Omit<Cliente, 'userId' | 'user'>[]> => {
         const clientes = await prisma.cliente.findMany({
+            where: {
+                OR: [
+                    { nomeCompleto: { contains: `${search}`, mode: 'insensitive' } },
+                    { endereco: { contains: `${search}`, mode: 'insensitive' } },
+                ]
+            },
             include: {
                 user: {
                     select: {
