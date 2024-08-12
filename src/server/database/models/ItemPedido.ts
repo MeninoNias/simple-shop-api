@@ -9,6 +9,6 @@ export interface ItemPedido {
     quantidade: number;
     precoUnitario: Decimal;
     subtotal: Decimal;
-    pedido: Pedido;
-    produto: Produto;
+    pedido?: Pedido;
+    produto?: Produto;
 }

@@ -5,15 +5,14 @@ import { StatusCodes } from "http-status-codes";
 
 import { validation } from '../../shared/middleware/Validation';
 
-import { clienteService } from '../../service';
+import { produtoService } from '../../service';
 import {
-    ClienteCreateSchema,
-    clienteCreateSchema,
-    ClienteUpdateSchema,
-    clienteUpdateSchema
-} from "../../schemas/clientes";
+    ProdutoCreateSchema,
+    produtoCreateSchema,
+    ProdutoUpdateSchema,
+    produtoUpdateSchema
+} from "../../schemas/produtos";
 import { ParamPropsShema, paramPropsShema } from "../../schemas/utils/ParamPropsShema";
-import { searchPropsSchema, SearchPropsSchema } from "../../schemas/utils/SearchPropsSchema";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { handlePrismaError } from "../../shared/exception/PrismaParseError";
 import { sendMailUserConfirm } from "../../shared/services";
@@ -22,16 +21,8 @@ interface IParamProps {
     id?: number;
 }
 
-interface IQueryProps {
-    search?: string;
-  }
-
 export const createValidation = validation((getSchema) => ({
-    body: getSchema<ClienteCreateSchema>(clienteCreateSchema),
-}));
-
-export const findAllValidation = validation((getSchema) => ({
-    query: getSchema<SearchPropsSchema>(searchPropsSchema),
+    body: getSchema<ProdutoCreateSchema>(produtoCreateSchema),
 }));
 
 export const deleteByIdValidation = validation(get => ({
@@ -43,43 +34,16 @@ export const findByIdValidation = validation(get => ({
 }));
 
 export const updateValidation = validation(get => ({
-    body: get<ClienteUpdateSchema>(clienteUpdateSchema),
+    body: get<ProdutoUpdateSchema>(produtoUpdateSchema),
     params: get<ParamPropsShema>(paramPropsShema),
 }));
 
-export const getMeCliente = async (request: Request, response: Response) => {
-    try {
-        const user = request.user
-        if (!user) {
-            return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Não autenticado.' });
-        }
 
-        const Cliente = await clienteService.getClienteDetailByUser(user.id)
-
-        if (!Cliente) {
-            return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
-        }
-
-        return response.status(StatusCodes.OK).json(Cliente);
-    } catch (error) {
-        if (error instanceof PrismaClientKnownRequestError) {
-            return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
-        }
-        if (error instanceof Error) {
-            return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
-        }
-
-    }
-}
-
-export const createCliente = async (request: Request<{}, {}, ClienteCreateSchema>, response: Response, next: NextFunction) => {
+export const createProduto = async (request: Request<{}, {}, ProdutoCreateSchema>, response: Response, next: NextFunction) => {
     try {
         const data = request.body
-        const newCliente = await clienteService.createCliente(data);
-        if (newCliente.user) {
-            sendMailUserConfirm(newCliente.user);
-        }
-        return response.status(StatusCodes.CREATED).json(newCliente);
+        const newProduto = await produtoService.createProduto(data);
+        return response.status(StatusCodes.CREATED).json(newProduto);
 
     } catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {
@@ -106,15 +70,15 @@ export const deleteById = async (request: Request<IParamProps>, response: Respon
             });
         }
 
-        const ClienteDelete = await clienteService.getClienteById(id)
+        const produtoDelete = await produtoService.getProdutoById(id)
 
-        if (!ClienteDelete) {
+        if (!produtoDelete) {
             return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
         }
 
-        const result = await clienteService.deleteClienteById(id);
+        const result = await produtoService.deleteProdutoById(id);
 
-        return response.status(StatusCodes.OK).json({ detail: 'Cliente deleted successfully' });
+        return response.status(StatusCodes.OK).json({ detail: 'Produto deleted successfully' });
     } catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {
             return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
@@ -138,13 +102,13 @@ export const findById = async (request: Request<IParamProps>, response: Response
             });
         }
 
-        const Cliente = await clienteService.getClienteById(id)
+        const produto = await produtoService.getProdutoById(id)
 
-        if (!Cliente) {
+        if (!produto) {
             return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
         }
 
-        return response.status(StatusCodes.OK).json(Cliente);
+        return response.status(StatusCodes.OK).json(produto);
     } catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {
             return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
@@ -156,13 +120,10 @@ export const findById = async (request: Request<IParamProps>, response: Response
     }
 }
 
-export const getAllClientes = async (request: Request<{}, {}, {}, IQueryProps>, response: Response) => {
+export const getAllProdutos = async (request: Request, response: Response) => {
     try {
-        const { search } = request.query || '';
-
-        const clientes = await clienteService.getAllClientes(search || '');
-
-        return response.status(StatusCodes.OK).json(clientes);
+        const produtos = await produtoService.getAllProduto();
+        return response.status(StatusCodes.OK).json(produtos);
     } catch (error) {
         if (error instanceof Error) {
             return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
@@ -172,7 +133,7 @@ export const getAllClientes = async (request: Request<{}, {}, {}, IQueryProps>, 
     }
 };
 
-export const updateCliente = async (request: Request<IParamProps, {}, ClienteUpdateSchema>, response: Response, next: NextFunction) => {
+export const updateProduto = async (request: Request<IParamProps, {}, ProdutoUpdateSchema>, response: Response, next: NextFunction) => {
     try {
         const { id } = request.params;
 
@@ -185,13 +146,13 @@ export const updateCliente = async (request: Request<IParamProps, {}, ClienteUpd
         }
 
 
-        const Cliente = await clienteService.getClienteById(id)
+        const produto = await produtoService.getProdutoById(id)
 
-        if (!Cliente) {
+        if (!produto) {
             return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
         }
 
-        const result = await clienteService.updateCliente(id, request.body);
+        const result = await produtoService.updateProduto(id, request.body);
 
         return response.status(StatusCodes.OK).json({ result });
 

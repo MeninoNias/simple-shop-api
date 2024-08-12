@@ -3,6 +3,7 @@ import { UserCreateSchema, UserUpdateSchema } from '../schemas/users';
 import prisma from '../database';
 import { Role } from '@prisma/client';
 import { PasswordCrypto } from '../shared/services';
+import { IUserRequest } from 'server/database/dto/UserRequest';
 
 export const userService = {
     createUser: async (data: UserCreateSchema): Promise<Omit<User, 'password'>> => {
@@ -35,7 +36,29 @@ export const userService = {
                 emailConfirm: true,
                 createdAt: true,
                 updatedAt: true,
-                type: true
+                type: true,
+            }
+        });
+        return user;
+    },
+
+    getUserClienteById: async (id: number): Promise<IUserRequest | null> => {
+        const user = await prisma.user.findUnique({
+            where: { id: Number(id) },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                emailConfirm: true,
+                type: true,
+                cliente: {
+                    select: {
+                        id: true,
+                        nomeCompleto: true,
+                        contato: true,
+                        endereco: true
+                    }
+                }
             }
         });
         return user;
