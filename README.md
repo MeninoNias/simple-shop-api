@@ -24,9 +24,22 @@ Este projeto é uma API REST simplificada para o gerenciamento de um sistema de 
 - **Prisma ORM**: ORM (Object-Relational Mapping) utilizado para interagir com o banco de dados.
 - **Docker**: Para containerização da aplicação e dos serviços associados.
 
+  
 ## Como Rodar a Aplicação
 
 ### Pré-requisitos
 
 - **Node.js** v18.x ou superior
 - **Docker** e **Docker Compose** instalados
+
+### O que foi feito e o que melhorar:
+
+- Foram feitos os CRUDs referentes a usuario, cliente produto pedido e item pedido:
+- Foram feitos a autenticação;
+- Foram feitos o envio de email;
+- Foram feitos o controle de permissão;
+
+- Não foi feito os teste;
+- Não foi feito o relatorio;
+- Não foi feito o deploy na AWS;
+- Não foi feito a busca de produtos;
