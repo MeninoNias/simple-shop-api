@@ -67,6 +67,45 @@ export const createPedido = async (request: Request<{}, {}, PedidoCreateSchema>,
     }
 };
 
+export const updatePedido = async (request: Request<IParamProps, {}, PedidoUpdateSchema>, response: Response, next: NextFunction) => {
+    try {
+        const data = request.body
+        const { id } = request.params;
+        const user = request.user
+
+        if (!user || !user.cliente) {
+            return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Não autenticado.' });
+        }
+
+        if (!id) {
+            return response.status(StatusCodes.BAD_REQUEST).json({
+                errors: {
+                    default: 'O parâmetro "id" precisa ser informado.'
+                }
+            });
+        }
+
+        const pedido = await pedidoService.getPedidoById(id, user.cliente.id);
+        if (!pedido) {
+            return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
+        }
+
+        const newPedido = await pedidoService.updatePedido(data, id);
+        return response.status(StatusCodes.CREATED).json(newPedido);
+
+    } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+            return response.status(StatusCodes.BAD_REQUEST).json({ error: handlePrismaError(error) });
+        }
+        if (error instanceof Error) {
+            console.log('error', error.message, error.stack)
+            return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+        } else {
+            return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+        }
+    }
+};
+
 export const createItemPedido = async (request: Request<IParamProps, {}, ItemPedidoSchema>, response: Response, next: NextFunction) => {
     try {
         const data = request.body
@@ -86,7 +125,7 @@ export const createItemPedido = async (request: Request<IParamProps, {}, ItemPed
         }
 
         const pedido = await pedidoService.getPedidoById(id, user.cliente.id);
-        if (!pedido){
+        if (!pedido) {
             return response.status(StatusCodes.NOT_FOUND).json({ error: 'Not found.' });
         }
 

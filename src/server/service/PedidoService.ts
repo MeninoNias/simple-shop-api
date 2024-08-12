@@ -48,6 +48,64 @@ export const pedidoService = {
         return pedido;
     },
 
+    updatePedido: async (data: PedidoCreateSchema, pedidoId: number): Promise<IPedido> => {
+        const pedido = await prisma.$transaction(async (prisma) => {
+            const itensPedidoData = await Promise.all(
+                data.ItemPedido.map(async (item) => {
+                    const produto = await prisma.produto.findUnique({
+                        where: { id: item.produtoId },
+                    });
+
+                    if (!produto) {
+                        throw new Error(`Produto com ID ${item.produtoId} não encontrado`);
+                    }
+
+                    const idItem = item.id !== undefined ? item.id : null 
+                    const itensPedidos = await prisma.itemPedido.upsert({
+                        where: {
+                            id: Number(idItem)
+                        },
+                        create: {
+                            pedidoId: Number(pedidoId),
+                            produtoId: item.produtoId,
+                            precoUnitario: produto.preco,
+                            quantidade: item.quantidade,
+                            subtotal: produto.preco.times(item.quantidade)
+                        },
+                        update: {
+                            precoUnitario: produto.preco,
+                            quantidade: item.quantidade,
+                            subtotal: produto.preco.times(item.quantidade)
+                        },
+                    })
+
+                    return itensPedidos;
+                })
+            );
+            console.log(itensPedidoData)
+            const sumPedido = await prisma.itemPedido.aggregate({
+                _sum: {
+                    subtotal: true
+                }
+            })
+            const totalPedido = new Decimal(sumPedido._sum.subtotal || 0)
+            const updatePedido = await prisma.pedido.update({
+                where: { id: Number(pedidoId) },
+                data: {
+                    dataPedido: data.dataPedido,
+                    total: totalPedido
+                },
+                include: {
+                    ItemPedido: true
+                }
+            });
+
+            return updatePedido;
+        })
+
+        return pedido;
+    },
+
     createItemPedido: async (data: ItemPedidoSchema, pedido: IPedido): Promise<IPedido | Error> => {
         const newPedido = await prisma.$transaction(async (prisma) => {
             let pedidoItem = null
