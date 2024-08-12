@@ -9,5 +9,5 @@ export interface IProduto {
     quantidadeEmEstoque: number;
     createdAt: Date;
     updatedAt: Date;
-    ItemPedido: ItemPedido[];
+    ItemPedido?: ItemPedido[];
 }

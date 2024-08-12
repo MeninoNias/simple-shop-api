@@ -90,8 +90,8 @@ model ItemPedido {
     precoUnitario Decimal
     subtotal      Decimal
 
-    pedido  Pedido  @relation(fields: [pedidoId], references: [id])
-    produto Produto @relation(fields: [produtoId], references: [id])
+    pedido  Pedido  @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+    produto Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
 
     @@map("item_pedidos")
 }
