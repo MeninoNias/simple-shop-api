@@ -223,6 +223,9 @@ export const loginUser = async (request: Request<{}, {}, UserLoginSchema>, respo
         if (!passwordMatch) {
             return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Email ou senha são invalidos.' });
         }
+        if (!result.emailConfirm){
+            return response.status(StatusCodes.UNAUTHORIZED).json({ error: 'Email não confirmado, verifique sua caixa de email.' });
+        }
         else {
             const accessToken = JWTService.sign({ uid: result.id });
 
