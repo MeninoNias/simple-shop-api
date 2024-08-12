@@ -10,6 +10,6 @@ export interface ICliente {
     status: boolean;
     createdAt: Date;
     updatedAt: Date;
-    pedidos: Pedido[];
-    user: User;
+    pedidos?: Pedido[];
+    user?: User;
 }
