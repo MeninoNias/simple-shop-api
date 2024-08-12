@@ -8,6 +8,7 @@
   "private": false,
   "scripts": {
     "start": "ts-node-dev ./src/index.ts",
+    "build": "tsc",
     "dev": "nodemon index.js",
     "lint": "eslint src/**/*.{js,ts,tsx}"
   },
