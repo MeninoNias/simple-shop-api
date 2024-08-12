@@ -1,10 +1,10 @@
-import { IUser } from '../../database/models/User';
+import { IUserRequest } from '../../database/dto/UserRequest';
 
 
 declare global {
     namespace Express {
         interface Request {
-            user?: Omit<IUser, "password">;
+            user?: IUserRequest;
         }
     }
 }
